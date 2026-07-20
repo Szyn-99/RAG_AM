@@ -1,0 +1,11 @@
+[project]
+name = "rag-am"
+version = "0.1.0"
+description = "Retrieval-Augmented Generation."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fire>=0.7.1",
+    "pydantic>=2.13.4",
+]
+
