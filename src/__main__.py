@@ -1,5 +1,5 @@
 import fire
-from os import scandir
+from pathlib import Path, PosixPath, PurePath
 
 def index(max_chunk_size: int):
     pass
@@ -16,12 +16,12 @@ def evaluate(student_search_results_path: str, dataset_path: str):
 
 
 def scan(directory_path: str):
-    file_paths = set()
-    for entry in scandir(directory_path):
-        if entry.is_file():
-            file_paths.add(entry.path)
-
-    print(file_paths[0].split)
+    extensions = {".md", ".txt", ".py"}
+    paths = Path(directory_path).rglob("*")
+    for file in paths:
+        if file.is_file() and file.suffix in extensions:
+            # print(file)
+            pass
 
 if __name__ == '__main__':
     fire.Fire()
