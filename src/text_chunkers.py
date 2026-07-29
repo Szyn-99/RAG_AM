@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from .data_models import TextChunk
 
 
@@ -11,15 +11,7 @@ class TextChunker:
     def __init__(self, paths: List, max_chunk_size: int) -> None:
         self.paths = paths
         self.txt_chunked: List[TextChunk] = []
-        self.mcs = max_chunk_size
-    def txt_chunker(self) -> List[TextChunk]:
+        self.max_chunk_size = max_chunk_size
+    def txt_paragraphs(self) -> List[Tuple[str, int, int]]:
         seps = ['\n', '. ', ' ']
-        def first_step(self, raw_text: str) -> list[str]:
-            chunks = raw_text.split('\n')
-            for chunk in chunks:
-                if len(chunk) >= self.mcs:
-                    
-
-        for path in self.paths:
-            with open(path) as f:
-                raw_text = f.read()
+        

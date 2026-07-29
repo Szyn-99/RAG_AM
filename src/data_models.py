@@ -41,5 +41,5 @@ class StudentSearchResultsAndAnswer(BaseModel):
     search_results: List[MinimalAnswer]
     k: int
 
-class TextChunk(MinimalAnswer):
+class TextChunk(MinimalSource):
     text: str
