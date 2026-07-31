@@ -43,3 +43,4 @@ class StudentSearchResultsAndAnswer(BaseModel):
 
 class TextChunk(MinimalSource):
     text: str
+    size: int

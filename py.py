@@ -1,3 +1,1 @@
-a = "h.h.d.d.d"
-print(a.split('.'))
-print(a)
+print("hhh\njjj".splitlines(keepends=True))
