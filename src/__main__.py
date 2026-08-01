@@ -16,7 +16,7 @@ def evaluate(student_search_results_path: str, dataset_path: str):
     pass
 
 
-def scan(directory_path: str, to_save: str):
+def scan(directory_path: str):
     extensions = {".txt"}
     paths = Path(directory_path).rglob("*")
     results = {'.txt': [], '.md': [],'.py': []}
@@ -28,11 +28,11 @@ def scan(directory_path: str, to_save: str):
         elif file.is_file() and file.suffix == '.py':
             results['.py'].append(file)
              
-    res = MultiChunker(results['.txt'], 2000).txt_chunker()
-    output_path = Path(to_save)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w") as file:
-        dump([chunk.model_dump() for chunk in res], file, indent=2)
+    res = MultiChunker(results, 2000).start_chunker()
+    for (path, r) in [('text.json', res[0]), ('markdown.json', res[1]), ('python.json', res[2])]:
+        with open(path, "w") as file:
+            dump([chunk.model_dump() for chunk in r], file, indent=2)
+
 
 if __name__ == '__main__':
     fire.Fire()
