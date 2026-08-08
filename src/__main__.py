@@ -2,6 +2,7 @@ import fire
 from json import dump
 from pathlib import Path, PosixPath, PurePath
 from .text_chunkers import MultiChunker
+import os
 def index(max_chunk_size: int):
     pass
 def search(query, k: int):
@@ -29,7 +30,9 @@ def scan(directory_path: str):
             results['.py'].append(file)
              
     res = MultiChunker(results, 2000).start_chunker()
-    for (path, r) in [('text.json', res[0]), ('markdown.json', res[1]), ('python.json', res[2])]:
+    prefix = 'data/processed/'
+    os.makedirs('data/processed/', exist_ok=True)
+    for (path, r) in [(prefix+'text.json', res[0]), (prefix+'markdown.json', res[1]), (prefix+'python.json', res[2])]:
         with open(path, "w") as file:
             dump([chunk.model_dump() for chunk in r], file, indent=2)
 
