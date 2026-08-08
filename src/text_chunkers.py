@@ -46,48 +46,62 @@ class MultiChunker:
                     )
                     start = end
                     end += self.max_chunk
+    def _node_boundaries(self, start: int, end: int) -> List[Tuple[int, int]]:
+        """Split a [start, end) span into pieces, each at most max_chunk long.
+
+        Args:
+            start: Absolute character offset where the span begins.
+            end: Absolute character offset where the span ends (exclusive).
+
+        Returns:
+            A list of (start, end) tuples covering the whole span, in order,
+            with no gaps and no piece longer than max_chunk.
+        """
+        boundaries = []
+        pos = start
+        while pos < end:
+            piece_end = min(pos + self.max_chunk, end)
+            boundaries.append((pos, piece_end))
+            pos = piece_end
+        return boundaries
+
     def py_chunker(self) -> None:
-        for path in self.paths['.py']:
-            with open(path, encoding='utf-8') as f:
+        """Chunk every .py file in self.paths['.py'], appending to self.chunks['.py'].
+
+        Each top-level node (function, class, statement) is located by its
+        exact character offset in the source, then split in isolation via
+        _node_boundaries. Nodes are never merged with their siblings, so
+        every character in the file is covered by exactly one chunk.
+        """
+        for path in self.paths[".py"]:
+            with open(path, encoding="utf-8") as f:
                 code = f.read()
 
             tree = parse(code)
-            body = tree.body
             search_from = 0
 
-            for i, node in enumerate(body):
+            for node in tree.body:
                 node_text = get_source_segment(code, node) or ""
+                if not node_text:
+                    continue
+
                 node_start = code.find(node_text, search_from)
+                if node_start == -1:
+                    continue
                 node_end = node_start + len(node_text)
                 search_from = node_end
 
-                chunk_text, chunk_end = node_text, node_end
-
-                if len(chunk_text) > self.max_chunk:
-                    chunk_text = chunk_text[: self.max_chunk]
-                    chunk_end = node_start + len(chunk_text)
-                else:
-                    for sibling in body[i + 1:]:
-                        sibling_text = get_source_segment(code, sibling) or ""
-                        remaining = self.max_chunk - len(chunk_text)
-                        if len(sibling_text) > remaining:
-                            break
-                        sibling_start = code.find(sibling_text, chunk_end)
-                        if sibling_start == -1:
-                            break
-                        chunk_text = code[node_start:sibling_start + len(sibling_text)]
-                        chunk_end = sibling_start + len(sibling_text)
-
-                self.chunks['.py'].append(
-                    TextChunk(
-                        text=chunk_text,
-                        size=len(chunk_text),
-                        chunk_type='.py',
-                        file_path=str(path),
-                        first_character_index=node_start,
-                        last_character_index=chunk_end,
+                for start, end in self._node_boundaries(node_start, node_end):
+                    self.chunks[".py"].append(
+                        TextChunk(
+                            text=code[start:end],
+                            size=end - start,
+                            chunk_type=".py",
+                            file_path=str(path),
+                            first_character_index=start,
+                            last_character_index=end,
+                        )
                     )
-                )
 
 
 
